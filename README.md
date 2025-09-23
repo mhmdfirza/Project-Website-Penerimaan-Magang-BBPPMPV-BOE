@@ -1,65 +1,118 @@
-<<<<<<< HEAD
-# Project-Website-Penerimaan-Magang-BBPPMPV-BOE
-=======
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Sip 👍 kalau mau lebih profesional, README.md bisa dibuat bilingual (Indonesia + English). Jadi orang lokal ngerti, orang luar juga bisa baca.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aku bikinin contoh struktur **README.md bilingual** untuk projectmu 👇
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+````markdown
+# 🌐 Website Penerimaan Siswa PKL BOE Malang 2025
+*Aplikasi Web untuk Penerimaan PKL di BBPPMPV BOE Malang*
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+![Banner](./public/images/screenshot-banner.png)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🇮🇩 Tentang Website
+Website ini dibuat untuk mendukung **proses penerimaan siswa PKL (Praktek Kerja Lapangan) di BBPPMPV BOE Malang tahun 2025**.  
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### ✨ Fitur Utama
+- 📝 Pendaftaran siswa secara online  
+- 🏫 Manajemen data sekolah asal  
+- 👨‍🏫 Data pembimbing eksternal & internal  
+- 📂 Upload surat pengajuan  
+- 📊 Monitoring status pengajuan  
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Website dikembangkan menggunakan **Laravel 10, Tailwind CSS, dan MySQL**.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🇬🇧 About This Website
+This web application is developed to support the **Internship Admission (PKL) process at BBPPMPV BOE Malang in 2025**.  
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### ✨ Main Features
+- 📝 Online student registration  
+- 🏫 School data management  
+- 👨‍🏫 Internal & external supervisor management  
+- 📂 Submission letter upload  
+- 📊 Submission status monitoring  
 
-### Premium Partners
+Built with **Laravel 10, Tailwind CSS, and MySQL**.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🖼️ Screenshots
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 🔹 Form Pendaftaran / Registration Form
+![Form Pendaftaran](./public/images/screenshot-form.png)
 
-## Code of Conduct
+### 🔹 Dashboard Admin
+![Dashboard Admin](./public/images/screenshot-dashboard.png)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 🔹 Detail Pengajuan / Submission Detail
+![Detail Pengajuan](./public/images/screenshot-detail.png)
 
-## Security Vulnerabilities
+> 📌 Simpan gambar di folder `public/images/` agar tampil di README.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## ⚙️ Instalasi & Menjalankan Project / Installation & Run
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
->>>>>>> 6e4ccc8 (init project laravel web)
+### 🇮🇩 Cara Instalasi
+```bash
+git clone https://github.com/mhmdfirza/Project-Website-Penerimaan-Magang-BBPPMPV-BOE.git
+cd Project-Website-Penerimaan-Magang-BBPPMPV-BOE
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+npm run dev
+````
+
+### 🇬🇧 Installation Guide
+
+```bash
+git clone https://github.com/mhmdfirza/Project-Website-Penerimaan-Magang-BBPPMPV-BOE.git
+cd Project-Website-Penerimaan-Magang-BBPPMPV-BOE
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+npm run dev
+```
+
+---
+
+## 📌 Teknologi / Tech Stack
+
+* [Laravel 10](https://laravel.com/)
+* [Tailwind CSS](https://tailwindcss.com/)
+* [MySQL](https://www.mysql.com/)
+* [Vite](https://vitejs.dev/)
+
+---
+
+## 👨‍💻 Kontributor / Contributors
+
+* Tim Developer BOE Malang
+* [@mhmdfirza](https://github.com/mhmdfirza)
+* [@VembiYusuf](https://github.com/VembiYusuf)
+
+---
+
+## 📜 Lisensi / License
+
+Project ini menggunakan lisensi **MIT** – bebas digunakan, dimodifikasi, dan didistribusikan.
+This project is licensed under the **MIT license** – free to use, modify, and distribute.
+
+```
+
+---
+
+Jadi nanti README-mu akan punya **dua bahasa**, rapi, ada screenshot, ada dokumentasi jelas.  
+
+👉 Mau aku bikinin juga **contoh screenshot dummy** (HTML sederhana) supaya pas kamu belum punya gambar real, tetap ada preview di README?
+```
