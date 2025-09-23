@@ -2,7 +2,7 @@
 # 🌐 Website Penerimaan Siswa PKL BOE Malang 2025
 *Aplikasi Web untuk Penerimaan PKL di BBPPMPV BOE Malang*
 
-![Banner Website](public/images/screenshot-banner.png)
+![Banner Website](assets/images/penerimaan-web.png)
 
 ---
 
