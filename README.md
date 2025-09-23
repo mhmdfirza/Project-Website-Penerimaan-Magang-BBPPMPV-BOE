@@ -1,8 +1,8 @@
+Oke! Saya sudah menyesuaikan README-mu agar rapi, bersih, dan menggunakan teknologi **Laravel 12** dan **Tailwind CSS 4**. Semua blok kode sudah sesuai markdown, tanpa backticks berlebih. Berikut versi final yang bisa langsung digunakan:
+
+````markdown
 # 🌐 Website Penerimaan Siswa PKL BOE Malang 2025
 *Aplikasi Web untuk Penerimaan PKL di BBPPMPV BOE Malang*
-
-![Banner Website](public/images/screenshot-banner.png)
-
 
 ![Banner Website](public/images/screenshot-banner.png)
 
@@ -17,7 +17,7 @@ Website ini dibuat untuk mendukung **proses penerimaan siswa PKL (Praktek Kerja 
 - 👨‍🏫 Manajemen pembimbing eksternal & internal  
 - 📂 Upload surat pengajuan  
 
-Website dikembangkan menggunakan **Laravel 10, Tailwind CSS, dan MySQL**.
+Website dikembangkan menggunakan **Laravel 12, Tailwind CSS 4, dan MySQL**.
 
 ---
 
@@ -38,44 +38,44 @@ Website dikembangkan menggunakan **Laravel 10, Tailwind CSS, dan MySQL**.
 
 ## ⚙️ Cara Instalasi & Menjalankan Project
 
-1. Clone repository
+1. **Clone repository**
    ```bash
    git clone https://github.com/mhmdfirza/Project-Website-Penerimaan-Magang-BBPPMPV-BOE.git
    cd Project-Website-Penerimaan-Magang-BBPPMPV-BOE
 ````
 
-2. Install dependency Laravel
+2. **Install dependency Laravel**
 
    ```bash
    composer install
    ```
 
-3. Install dependency frontend
+3. **Install dependency frontend**
 
    ```bash
    npm install
    ```
 
-4. Konfigurasi environment
+4. **Konfigurasi environment**
 
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-5. Jalankan migrasi database
+5. **Jalankan migrasi database**
 
    ```bash
    php artisan migrate --seed
    ```
 
-6. Jalankan server Laravel
+6. **Jalankan server Laravel**
 
    ```bash
    php artisan serve
    ```
 
-7. Jalankan Vite
+7. **Jalankan Vite**
 
    ```bash
    npm run dev
@@ -85,8 +85,8 @@ Website dikembangkan menggunakan **Laravel 10, Tailwind CSS, dan MySQL**.
 
 ## 📌 Teknologi yang Digunakan
 
-* [Laravel 10](https://laravel.com/)
-* [Tailwind CSS](https://tailwindcss.com/)
+* [Laravel 12](https://laravel.com/)
+* [Tailwind CSS 4](https://tailwindcss.com/)
 * [MySQL](https://www.mysql.com/)
 * [Vite](https://vitejs.dev/)
 
@@ -104,6 +104,3 @@ Website dikembangkan menggunakan **Laravel 10, Tailwind CSS, dan MySQL**.
 
 Project ini menggunakan lisensi **MIT** – bebas digunakan, dimodifikasi, dan didistribusikan.
 
-```
-
-```
