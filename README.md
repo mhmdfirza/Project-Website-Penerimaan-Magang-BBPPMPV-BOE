@@ -1,6 +1,4 @@
-Oke! Saya sudah menyesuaikan README-mu agar rapi, bersih, dan menggunakan teknologi **Laravel 12** dan **Tailwind CSS 4**. Semua blok kode sudah sesuai markdown, tanpa backticks berlebih. Berikut versi final yang bisa langsung digunakan:
 
-````markdown
 # 🌐 Website Penerimaan Siswa PKL BOE Malang 2025
 *Aplikasi Web untuk Penerimaan PKL di BBPPMPV BOE Malang*
 
@@ -24,13 +22,13 @@ Website dikembangkan menggunakan **Laravel 12, Tailwind CSS 4, dan MySQL**.
 ## 🖼️ Tampilan Website
 
 ### 🔹 Halaman Form Pendaftaran
-![Form Pendaftaran](public/images/form-pendaftaran.png)
+![Form Pendaftaran](assets/images/form-pendaftaran.png)
 
 ### 🔹 Halaman Form Pembimbing
-![Dashboard Admin](public/images/form-pembimbing.png)
+![Dashboard Admin](assets/images/form-pembimbing.png)
 
 ### 🔹 Halaman Form Data Siswa
-![Detail Pengajuan](public/images/form-datasiswa.png)
+![Detail Pengajuan](assets/images/form-datasiswa.png)
 
 > 📌 Simpan semua gambar di folder `public/images/` agar otomatis tampil di README.
 
