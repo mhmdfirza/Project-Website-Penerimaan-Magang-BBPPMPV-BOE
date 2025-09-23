@@ -106,6 +106,4 @@ Project ini menggunakan lisensi **MIT** – bebas digunakan, dimodifikasi, dan d
 
 ```
 
----
-
 ```
