@@ -29,7 +29,6 @@ Website dikembangkan menggunakan **Laravel 12, Tailwind CSS 4, dan MySQL**.
 ### 🔹 Halaman Form Data Siswa
 ![Detail Pengajuan](assets/images/form-datasiswa.png)
 
-> 📌 Simpan semua gambar di folder `public/images/` agar otomatis tampil di README.
 
 ---
 
