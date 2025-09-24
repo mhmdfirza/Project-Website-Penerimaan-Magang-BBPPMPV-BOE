@@ -1,4 +1,3 @@
-
 # 🌐 Website Penerimaan Siswa PKL BOE Malang 2025
 *Aplikasi Web untuk Penerimaan PKL di BBPPMPV BOE Malang*
 
@@ -40,45 +39,38 @@ Website dikembangkan menggunakan **Laravel 12, Tailwind CSS 4, dan MySQL**.
    ```bash
    git clone https://github.com/mhmdfirza/Project-Website-Penerimaan-Magang-BBPPMPV-BOE.git
    cd Project-Website-Penerimaan-Magang-BBPPMPV-BOE
-````
+   ```
 
 2. **Install dependency Laravel**
-
    ```bash
    composer install
    ```
 
 3. **Install dependency frontend**
-
    ```bash
    npm install
    ```
 
 4. **Konfigurasi environment**
-
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
 5. **Jalankan migrasi database**
-
    ```bash
    php artisan migrate --seed
    ```
 
 6. **Jalankan server Laravel**
-
    ```bash
    php artisan serve
    ```
 
 7. **Jalankan Vite**
-
    ```bash
    npm run dev
    ```
-
 
 ---
 
@@ -102,4 +94,3 @@ Website dikembangkan menggunakan **Laravel 12, Tailwind CSS 4, dan MySQL**.
 ## 📜 Lisensi
 
 Project ini menggunakan lisensi **MIT** – bebas digunakan, dimodifikasi, dan didistribusikan.
-
