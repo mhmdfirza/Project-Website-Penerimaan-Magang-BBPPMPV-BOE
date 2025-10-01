@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('department', function (Blueprint $table) {
+        Schema::create('departemen', function (Blueprint $table) {
             $table->increments('id_departemen');
             $table->string('nama_departemen', 255);
             $table->timestamps();

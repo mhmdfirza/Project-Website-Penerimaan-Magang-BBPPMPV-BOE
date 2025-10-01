@@ -24,7 +24,7 @@ return new class extends Migration
 
             $table->foreign('npsn_sekolah')->references('npsn')->on('sekolah_smk')->cascadeOnDelete();
             $table->foreign('id_pembimbing_e')->references('id_pembimbing_e')->on('pembimbing_eksternal')->cascadeOnDelete();
-            $table->foreign('id_departemen')->references('id_departemen')->on('department')->cascadeOnDelete();
+            $table->foreign('id_departemen')->references('id_departemen')->on('departemen')->cascadeOnDelete();
             $table->foreign('id_progli')->references('id_progli')->on('progli')->cascadeOnDelete();
             $table->timestamps();
         });

@@ -9,10 +9,13 @@ class DepartmentSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('departments')->insert([
-            ['nama_departemen' => 'Teknik Informatika', 'created_at' => now(), 'updated_at' => now()],
-            ['nama_departemen' => 'Teknik Elektro', 'created_at' => now(), 'updated_at' => now()],
-            ['nama_departemen' => 'Teknik Mesin', 'created_at' => now(), 'updated_at' => now()],
+        DB::table('departemen')->insert([
+            ['nama_departemen' => 'KONSTRUKSI PROPERTI DAN DAN GEOMATIKA', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'MESIN', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'LISTRIK DAN ELEKTRONIKA', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'TEKNOLOGI INFORMASI', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'OTOMOTIF', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_departemen' => 'MANAJEMEN PENDIDIKAN VOKASI', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

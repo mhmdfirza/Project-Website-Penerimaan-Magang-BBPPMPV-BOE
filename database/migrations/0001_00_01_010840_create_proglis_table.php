@@ -15,7 +15,7 @@ return new class extends Migration
             $table->increments('id_progli');
             $table->unsignedInteger('id_departemen');
             $table->string('nama_progli', 255);
-            $table->foreign('id_departemen')->references('id_departemen')->on('department')->cascadeOnDelete();
+            $table->foreign('id_departemen')->references('id_departemen')->on('departemen')->cascadeOnDelete();
             $table->timestamps();
         });
     }
