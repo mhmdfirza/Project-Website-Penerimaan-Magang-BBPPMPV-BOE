@@ -9,11 +9,11 @@ class Department extends Model
 {
     use HasFactory;
 
-    protected $table = 'departments'; 
+    protected $table = 'departemen'; 
     protected $primaryKey = 'id_departemen';
     protected $fillable = ['nama_departemen'];
 
-    public function proglis()
+    public function progli()
     {
         return $this->hasMany(Progli::class, 'id_departemen');
     }

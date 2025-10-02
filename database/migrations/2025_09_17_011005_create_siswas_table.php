@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('tanggal_lahir');
             $table->string('kelas', 50);
             $table->char('npsn_sekolah', 11);
-            $table->string('agama', 50);
+            $table->enum('agama', ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu']);
             $table->text('alamat_sekolah');
             $table->text('alamat_rumah');
             $table->string('no_hp', 20);
@@ -27,6 +27,7 @@ return new class extends Migration
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->string('foto');
+            $table->enum('status', ['ditolak', 'diproses', 'diterima'])->nullable();
             $table->unsignedInteger('id_pembimbing_i')->nullable();
             $table->unsignedInteger('id_pendaftaran');
 

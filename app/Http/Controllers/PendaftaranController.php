@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Department;
 use App\Models\Progli;
 use App\Models\PembimbingEksternal;
@@ -11,26 +12,42 @@ use App\Models\Siswa;
 
 class PendaftaranController extends Controller
 {
-    // Step 1: Form Pendaftaran
+    // * Step 1: Form Pendaftaran
+
+
+    // ? fungsi search sekolah
+    public function searchSekolah(Request $request)
+    {
+        $query = $request->get('q', '');
+
+        $sekolah = DB::table('sekolah_smk')
+            ->select('npsn', 'nama')
+            ->where('nama', 'like', "%{$query}%")
+            ->limit(10)
+            ->get();
+
+        return response()->json($sekolah);
+    }
+
     public function formPendaftaran()
     {
-        $departments = Department::all();
-        $proglis = Progli::all();
+        $departemen = Department::all();
+        $progli = Progli::all();
         $pendaftaran = session('pendaftaran', []);
 
-        return view('pendaftaran.form_pendaftaran', compact('departments', 'proglis', 'pendaftaran'));
+        return view('pendaftaran.form_pendaftaran', compact('departemen', 'progli', 'pendaftaran'));
     }
 
     public function storePendaftaran(Request $request)
     {
         $request->validate([
-            'asal_sekolah'   => 'required',
-            'id_departemen'  => 'required|exists:departments,id_departemen',
-            'id_progli'      => 'required|exists:proglis,id_progli',
+            'npsn_sekolah'   => 'required',
+            'id_departemen'  => 'required|exists:departemen,id_departemen',
+            'id_progli'      => 'required|exists:progli,id_progli',
         ]);
 
         $pendaftaran = session('pendaftaran', []);
-        $pendaftaran['asal_sekolah']  = $request->asal_sekolah;
+        $pendaftaran['npsn_sekolah']  = $request->npsn_sekolah;
         $pendaftaran['id_departemen'] = $request->id_departemen;
         $pendaftaran['id_progli']     = $request->id_progli;
 
@@ -93,6 +110,8 @@ class PendaftaranController extends Controller
             'siswa.*.tempat_lahir'  => 'required',
             'siswa.*.tanggal_lahir' => 'required|date',
             'siswa.*.kelas'         => 'required',
+            'siswa.*.agama'         => 'required|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
+            'siswa.*.foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $pendaftaran['siswa'] = $request->siswa;
@@ -101,13 +120,13 @@ class PendaftaranController extends Controller
         // ✅ simpan ke DB baru di step ini
         $pembimbing = PembimbingEksternal::create([
             'nama_pembimbing_e' => $pendaftaran['pembimbing']['nama'],
-            'sekolah'           => $pendaftaran['asal_sekolah'],
+            'sekolah'           => $pendaftaran['npsn_sekolah'],
             'no_hp'             => $pendaftaran['pembimbing']['no_hp'],
             'email'             => $pendaftaran['pembimbing']['email'],
         ]);
 
         $dbPendaftaran = Pendaftaran::create([
-            'asal_sekolah'   => $pendaftaran['asal_sekolah'],
+            'npsn_sekolah'   => $pendaftaran['npsn_sekolah'],
             'jumlah_siswa'   => $pendaftaran['pembimbing']['jumlah_siswa'],
             'id_pembimbing_e' => $pembimbing->id_pembimbing_e,
             'id_departemen'  => $pendaftaran['id_departemen'],
@@ -117,21 +136,26 @@ class PendaftaranController extends Controller
         ]);
 
         foreach ($pendaftaran['siswa'] as $data) {
+            $imagePath = null;
+
+            if (isset($data['foto']) && $data['foto'] instanceof \Illuminate\Http\UploadedFile) {
+                $imagePath = $data['foto']->store('foto_siswa', 'public');
+            }       
+
             Siswa::create([
                 'nisn'          => $data['nisn'],
                 'nama'          => $data['nama'],
                 'tempat_lahir'  => $data['tempat_lahir'],
                 'tanggal_lahir' => $data['tanggal_lahir'],
                 'kelas'         => $data['kelas'],
-                'asal_sekolah'  => $pendaftaran['asal_sekolah'],
-                'agama'         => $data['agama'] ?? '',
-                'alamat_sekolah' => $pendaftaran['asal_sekolah'],
+                'asal_sekolah'  => $pendaftaran['npsn_sekolah'],
+                'agama'         => $data['agama'],
                 'alamat_rumah'  => $data['alamat_rumah'] ?? '',
                 'no_hp'         => $data['no_hp'] ?? '',
                 'alamat_kos'    => '',
                 'tanggal_mulai' => now(),
                 'tanggal_selesai' => now()->addMonths(3),
-                'foto'          => '-',
+                'foto'          => $imagePath,
                 'status'        => 'diproses',
                 'id_pembimbing_i' => null,
                 'id_pendaftaran' => $dbPendaftaran->id_pendaftaran,

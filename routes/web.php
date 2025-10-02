@@ -11,6 +11,9 @@ Route::get('/', function () {
 Route::get('/pendaftaran', [PendaftaranController::class, 'formPendaftaran'])->name('pendaftaran.form');
 Route::post('/pendaftaran', [PendaftaranController::class, 'storePendaftaran'])->name('pendaftaran.store');
 
+Route::get('/search-sekolah', [PendaftaranController::class, 'searchSekolah'])->name('search.sekolah');
+
+
 // step 2: form pembimbing
 Route::get('/pembimbing', [PendaftaranController::class, 'formPembimbing'])->name('pembimbing.form');
 Route::post('/pembimbing', [PendaftaranController::class, 'storePembimbing'])->name('pembimbing.store');
