@@ -12,6 +12,10 @@ Route::get('/pendaftaran', [PendaftaranController::class, 'formPendaftaran'])->n
 Route::post('/pendaftaran', [PendaftaranController::class, 'storePendaftaran'])->name('pendaftaran.store');
 
 Route::get('/search-sekolah', [PendaftaranController::class, 'searchSekolah'])->name('search.sekolah');
+Route::get('/get-progli/{id_departemen}', [PendaftaranController::class, 'getProgli']);
+
+Route::post('/pendaftaran/upload-surat', [PendaftaranController::class, 'uploadSurat'])->name('pendaftaran.uploadSurat');
+
 
 
 // step 2: form pembimbing

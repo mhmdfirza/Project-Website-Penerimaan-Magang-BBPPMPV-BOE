@@ -19,7 +19,8 @@ return new class extends Migration
             $table->unsignedInteger('id_departemen');
             $table->unsignedInteger('id_progli');
             $table->string('surat_pengajuan')->nullable();
-            $table->date('tgl_pengajuan');
+            $table->date('tgl_mulai');
+            $table->date('tgl_selesai');
             $table->enum('status', ['ditolak', 'diproses', 'diterima'])->nullable();
 
             $table->foreign('npsn_sekolah')->references('npsn')->on('sekolah_smk')->cascadeOnDelete();

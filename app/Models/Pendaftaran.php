@@ -18,7 +18,8 @@ class Pendaftaran extends Model
         'id_departemen',
         'id_progli',
         'surat_pengajuan',
-        'tgl_pengajuan',
+        'tgl_mulai',
+        'tgl_selesai',
         'status'
     ];
 
