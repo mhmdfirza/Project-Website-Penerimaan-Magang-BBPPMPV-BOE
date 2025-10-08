@@ -26,6 +26,8 @@ Route::post('/pembimbing', [PendaftaranController::class, 'storePembimbing'])->n
 Route::get('/siswa', [PendaftaranController::class, 'formSiswa'])->name('siswa.form');
 Route::post('/siswa', [PendaftaranController::class, 'storeSiswa'])->name('siswa.store');
 
+Route::post('/siswa/upload-foto-siswa', [PendaftaranController::class, 'uploadFotoSiswa'])->name('siswa.uploadFotoSiswa');
+
 // selesai
 Route::get('/selesai', [PendaftaranController::class, 'selesai'])->name('pendaftaran.selesai');
 

@@ -108,14 +108,30 @@
                     </div>
 
                     <!-- Foto -->
-                    <div>
+                    <!-- Foto dengan AJAX Preview -->
+                    <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">FOTO SISWA</label>
-                        <input type="file" id="foto" name="siswa[{{ $i }}][foto]" accept="image/*"
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                                      file:rounded-full file:border-0 file:text-sm file:font-semibold
-                                      file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100" required>
-                        <p id="foto_error" class="text-red-500 text-sm mt-1 hidden">Wajib diisi</p>
+                        <input type="file" id="foto_siswa_{{ $i }}" 
+                            data-index="{{ $i }}"
+                            accept="image/*"
+                            class="foto-siswa-input block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0 file:text-sm file:font-semibold
+                                    file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100">
+                        <p id="foto_error_{{ $i }}" class="text-red-500 text-sm mt-1 hidden"></p>
                         <p class="text-gray-500 text-sm mt-1">File maksimal 2MB. Format: JPEG, PNG, dan JPG.</p>
+
+                        <!-- Preview Area -->
+                        <div id="preview_foto_siswa_{{ $i }}" class="mt-3">
+                            @if (!empty($pendaftaran['siswa'][$i]['foto_temp']))
+                                <div class="flex items-center space-x-4">
+                                    <img src="{{ Storage::url($pendaftaran['siswa'][$i]['foto_temp']) }}" 
+                                        alt="Preview Foto" class="w-20 h-20 object-cover border rounded">
+                                    <div>
+                                        <p class="text-sm text-green-600">✓ Foto sudah diupload</p>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <!-- Alamat Rumah -->
@@ -147,13 +163,13 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">TANGGAL MULAI</label>
-                            <input type="date" id="tgl_mulai" name="tgl_mulai"
+                            <input type="date" id="tgl_mulai[{{ $i }}]" name="tgl_mulai"
                                 value="{{ session('pendaftaran.tgl_mulai') ?? old('tgl_mulai') }}"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">TANGGAL SELESAI</label>
-                            <input type="date" id="tgl_selesai" name="tgl_selesai"
+                            <input type="date" id="tgl_selesai[{{ $i }}]" name="tgl_selesai"
                                 value="{{ session('pendaftaran.tgl_selesai') ?? old('tgl_selesai') }}"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
                         </div>
@@ -196,6 +212,86 @@
 
     <!-- Script -->
 <script>
+
+// Handle upload foto siswa
+document.querySelectorAll('.foto-siswa-input').forEach(input => {
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const index = this.getAttribute('data-index');
+        const previewContainer = document.getElementById(`preview_foto_siswa_${index}`);
+        const errorElement = document.getElementById(`foto_error_${index}`);
+        
+        // Reset state
+        previewContainer.innerHTML = '';
+        if (errorElement) errorElement.classList.add('hidden');
+        
+        if (!file) return;
+
+        // Validasi client-side
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        if (!validTypes.includes(file.type)) {
+            if (errorElement) {
+                errorElement.textContent = 'Format file tidak didukung. Gunakan JPEG, PNG, atau JPG.';
+                errorElement.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (file.size > maxSize) {
+            if (errorElement) {
+                errorElement.textContent = 'Ukuran file melebihi 2MB.';
+                errorElement.classList.remove('hidden');
+            }
+            return;
+        }
+
+        // Show loading
+        previewContainer.innerHTML = '<p class="text-blue-500 text-sm">Mengupload foto...</p>';
+
+        const formData = new FormData();
+        formData.append('foto_siswa', file);
+        formData.append('index', index);
+
+        fetch("{{ route('siswa.uploadFotoSiswa') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const previewHTML = `
+                    <div class="flex items-center space-x-4">
+                        <img src="${data.path}" 
+                             alt="Preview Foto" class="w-20 h-20 object-cover border rounded">
+                        <div>
+                            <p class="text-sm text-green-600">✓ Foto berhasil diupload</p>
+                        </div>
+                    </div>
+                `;
+                previewContainer.innerHTML = previewHTML;
+            } else {
+                if (errorElement) {
+                    errorElement.textContent = data.message || 'Gagal upload foto.';
+                    errorElement.classList.remove('hidden');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (errorElement) {
+                errorElement.textContent = 'Terjadi kesalahan saat upload.';
+                errorElement.classList.remove('hidden');
+            }
+        });
+    });
+});
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const steps = document.querySelectorAll(".siswa-form");
     const prevBtn = document.getElementById("prevBtn");
