@@ -149,18 +149,19 @@ class PendaftaranController extends Controller
 
 
         $pendaftaran['npsn_sekolah']  = $request->npsn_sekolah;
+        $pendaftaran['asal_sekolah']  = $request->asal_sekolah; 
         $pendaftaran['id_departemen'] = $request->id_departemen;
         $pendaftaran['id_progli']     = $request->id_progli;
         $pendaftaran['tgl_mulai']     = $request->tgl_mulai;
         $pendaftaran['tgl_selesai']   = $request->tgl_selesai;
 
         if ($request->hasFile('surat_pengajuan')) {
-            // Hapus file lama JIKA ADA
+            // hapus file lama jika ada
             if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('public')->exists($pendaftaran['surat_pengajuan'])) {
                 Storage::disk('public')->delete($pendaftaran['surat_pengajuan']);
             }
 
-            // Simpan file baru
+            // Simpan
             $suratPath = $request->file('surat_pengajuan')->store('temp/surat_pengajuan', 'public');
             $pendaftaran['surat_pengajuan'] = $suratPath;
         }
@@ -176,6 +177,12 @@ class PendaftaranController extends Controller
     public function formPembimbing()
     {
         $pendaftaran = session('pendaftaran', []);
+
+        if (isset($pendaftaran['siswa'])) {
+            unset($pendaftaran['siswa']);
+            session(['pendaftaran' => $pendaftaran]);
+        }
+
         return view('pendaftaran.form_pembimbing', compact('pendaftaran'));
     }
 
@@ -232,6 +239,8 @@ class PendaftaranController extends Controller
             'siswa.*.foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2mb
         ]);
 
+
+
         DB::beginTransaction();
 
         try{
@@ -247,13 +256,12 @@ class PendaftaranController extends Controller
             ]);
 
 
-            // 2. Pindahkan SURAT PENGAJUAN dari temp ke folder permanen
+            // surat pengajuan temp -> main
             $suratPath = null;
             if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('public')->exists($pendaftaran['surat_pengajuan'])) {
                 $originalFileName = pathinfo($pendaftaran['surat_pengajuan'], PATHINFO_BASENAME);
                 $suratPath = 'surat_pengajuan/' . date('Y/m/d') . '/' . uniqid() . '_' . $originalFileName;
                 
-                // Pindahkan file dari temp ke permanen
                 Storage::disk('public')->move(
                     $pendaftaran['surat_pengajuan'], 
                     $suratPath
@@ -301,7 +309,7 @@ class PendaftaranController extends Controller
                     $fotoFile = $request->file("siswa.{$index}.foto");
                     $fotoPath = $fotoFile->store('foto_siswa/' . date('Y/m/d'), 'public');
                 }
-                
+
                 Siswa::create([
                     'nisn'              => $data['nisn'],
                     'nama'              => $data['nama'],

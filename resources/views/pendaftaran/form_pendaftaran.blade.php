@@ -17,8 +17,8 @@
     <form action="{{ route('pendaftaran.store') }}" method="POST" enctype="multipart/form-data"
         class="space-y-6 max-w-2xl mx-auto">
         @csrf
-
-        <!-- Asal Sekolah -->
+        
+        <!--  Asal Sekolah -->
         <div class="relative">
             <label class="block text-lg font-medium text-gray-700 mb-1">ASAL SEKOLAH</label>
             <input type="text" id="asal_sekolah" name="asal_sekolah"
@@ -42,9 +42,10 @@
             <select name="id_departemen" id="id_departemen"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                 required>
-                <option value="" disabled selected>Pilih department</option>
+                <option value="" disabled {{ empty($pendaftaran['id_departemen']) ? 'selected' : '' }}>Pilih department</option>
                 @foreach ($departemen as $dept)
-                <option value="{{ $dept->id_departemen }}">
+                <option value="{{ $dept->id_departemen }}" 
+                    {{ ($pendaftaran['id_departemen'] ?? '') == $dept->id_departemen ? 'selected' : '' }}>
                     {{ $dept->nama_departemen }}
                 </option>
                 @endforeach
@@ -57,7 +58,8 @@
             <select name="id_progli" id="id_progli"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                 required>
-                <option value="" disabled selected>Pilih program keahlian</option>
+                <option value="" disabled {{ empty($pendaftaran['id_progli']) ? 'selected' : '' }}>Pilih program keahlian</option>
+                {{-- ⭐ OPTIONS AKAN DIISI OLEH JAVASCRIPT --}}
             </select>
         </div>
 
@@ -65,14 +67,17 @@
         <div class="grid md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">TANGGAL MULAI</label>
-                <input type="date" id="tgl_mulai" name="tgl_mulai" value="{{ old('tgl_mulai') }}"
-                    required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Kota/Kabupaten">
+                <input type="date" id="tgl_mulai" name="tgl_mulai" 
+                    value="{{ old('tgl_mulai', $pendaftaran['tgl_mulai'] ?? '') }}"
+                    required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2
+                                focus:ring-blue-500 focus:border-blue-500 outline-none transition">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">TANGGAL SELESAI</label>
                 <input type="date" id="tgl_selesai" name="tgl_selesai"
-                    value="{{ old('tgl_selesai') }}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500
-                                          focus:border-blue-500 outline-none transition">
+                    value="{{ old('tgl_selesai', $pendaftaran['tgl_selesai'] ?? '') }}" 
+                    required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 
+                                focus:ring-blue-500 focus:border-blue-500 outline-none transition">
             </div>
         </div>
 
@@ -121,64 +126,28 @@
         </div>
     </form>
 </main>
-@endsection
 
-
-@push('scripts')
 <script>
+    // =============================================
+    // DEKLARASI VARIABEL
+    // =============================================
     const inputSekolah = document.getElementById('asal_sekolah');
     const suggestions = document.getElementById('suggestions');
     const hiddenNpsn = document.getElementById('npsn_sekolah');
     const errorMsgSekolah = document.getElementById('asal_sekolah_error');
 
+    const tglMulai = document.getElementById("tgl_mulai");
+    const tglSelesai = document.getElementById("tgl_selesai");
+
     const inputSurat = document.getElementById('surat_pengajuan');
     const errorMsgSurat = document.getElementById('surat_pengajuan_error');
 
+    const form = document.querySelector("form");
 
 
-    // validasi tanggal
-    document.addEventListener("DOMContentLoaded", function () {
-        const tglMulai = document.getElementById("tgl_mulai");
-        const tglSelesai = document.getElementById("tgl_selesai");
-            tglMulai.addEventListener("change", function () {
-                let startDate = new Date(this.value);
-                startDate.setDate(startDate.getDate() + 1); // tambah 1 hari
-
-                let minDate = startDate.toISOString().split("T")[0];
-                tglSelesai.min = minDate;
-            });
-    });
-
-
-
-    inputSekolah.addEventListener('keyup', function () {
-        const query = this.value;
-
-        // Reset hidden input saat user ketik manual
-        hiddenNpsn.value = '';
-
-        if (query.length < 2) {
-            suggestions.innerHTML = '';
-            suggestions.classList.add('hidden');
-            return;
-        }
-
-        fetch(`/search-sekolah?q=${query}`)
-            .then(res => res.json())
-            .then(data => {
-                let html = '';
-                data.forEach(item => {
-                    html += `<div class="px-3 py-2 hover:bg-gray-200 cursor-pointer" 
-                             data-npsn="${item.npsn}" 
-                             onclick="selectSchool('${item.nama}', '${item.npsn}')">
-                            ${item.nama}
-                         </div>`;
-                });
-                suggestions.innerHTML = html;
-                suggestions.classList.remove('hidden');
-            });
-    });
-
+    // =============================================
+    // FUNGSI SCHOOL SEARCH
+    // =============================================
     function selectSchool(nama, npsn) {
         inputSekolah.value = nama;
         hiddenNpsn.value = npsn;
@@ -187,38 +156,131 @@
         errorMsgSekolah.classList.add('hidden');
     }
 
-    // klik di luar untuk menutup suggestion
-    document.addEventListener('click', function (e) {
-        if (!inputSekolah.contains(e.target)) {
-            suggestions.innerHTML = '';
-            suggestions.classList.add('hidden');
+    function fillSchoolFromSession() {
+        const asalSekolah = '{{ $pendaftaran["asal_sekolah"] ?? "" }}';
+        const npsnSekolah = '{{ $pendaftaran["npsn_sekolah"] ?? "" }}';
+        
+        if (asalSekolah && npsnSekolah) {
+            document.getElementById('asal_sekolah').value = asalSekolah;
+            document.getElementById('npsn_sekolah').value = npsnSekolah;
         }
-    });
+    }
 
 
-    // Ambil progli sesuai pilihan departemen
-    document.getElementById('id_departemen').addEventListener('change', function () {
-        const deptId = this.value;
-        const progliSelect = document.getElementById('id_progli');
+    // =============================================
+    // FUNGSI DEPARTMENT & PROGLI
+    // =============================================
+    function loadProgliFromSession() {
+        const selectedDepartemen = '{{ $pendaftaran["id_departemen"] ?? "" }}';
+        const selectedProgli = '{{ $pendaftaran["id_progli"] ?? "" }}';
 
-        progliSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+        if (selectedDepartemen) {
+            document.getElementById('id_departemen').value = selectedDepartemen;
+            
+            fetch(`/get-progli/${selectedDepartemen}`)
+                .then(response => response.json())
+                .then(progli => {
+                    const progliSelect = document.getElementById('id_progli');
+                    progliSelect.innerHTML = '<option value="" disabled>Pilih program keahlian</option>';
+                    
+                    progli.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.id_progli;
+                        option.textContent = p.nama_progli;
+                        option.selected = (p.id_progli == selectedProgli);
+                        progliSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading progli:', error));
+        }
+    }
 
-        fetch(`/get-progli/${deptId}`)
-            .then(response => response.json())
-            .then(data => {
-                let options = '<option value="" disabled selected>Pilih program keahlian</option>';
-                data.forEach(item => {
-                    options += `<option value="${item.id_progli}">${item.nama_progli}</option>`;
-                });
-                progliSelect.innerHTML = options;
-            })
-            .catch(() => {
-                progliSelect.innerHTML = '<option value="" disabled selected>Gagal memuat data</option>';
-            });
-    });
 
+    // =============================================
+    // FUNGSI VALIDASI DATES
+    // =============================================
+    function validateDates() {
+        const startDate = new Date(tglMulai.value);
+        const endDate = new Date(tglSelesai.value);
+        
+        // Reset error states
+        tglMulai.classList.remove('border-red-500');
+        tglSelesai.classList.remove('border-red-500');
+        hideDateError();
+        
+        // Validasi: Cek jika kedua tanggal terisi
+        if (!tglMulai.value || !tglSelesai.value) {
+            return true;
+        }
+        
+        // Validasi: Tanggal selesai harus setelah tanggal mulai
+        if (endDate <= startDate) {
+            showDateError('Tanggal selesai harus setelah tanggal mulai');
+            tglSelesai.classList.add('border-red-500');
+            return false;
+        }
+        
+        return true;
+    }
 
-    document.getElementById('surat_pengajuan').addEventListener('change', function(event) {
+    function showDateError(message) {
+        let errorElement = document.getElementById('date-error');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.id = 'date-error';
+            errorElement.className = 'mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg';
+            tglSelesai.parentNode.appendChild(errorElement);
+        }
+        errorElement.innerHTML = `<p class="text-sm font-medium">${message}</p>`;
+        errorElement.classList.remove('hidden');
+    }
+
+    function hideDateError() {
+        const errorElement = document.getElementById('date-error');
+        if (errorElement) {
+            errorElement.classList.add('hidden');
+        }
+    }
+
+    function setMinEndDate() {
+        if (tglMulai.value) {
+            let startDate = new Date(tglMulai.value);
+            startDate.setDate(startDate.getDate() + 1);
+            
+            let minDate = startDate.toISOString().split("T")[0];
+            tglSelesai.min = minDate;
+            
+            // Jika tgl_selesai sudah ada tapi < minDate, reset
+            if (tglSelesai.value && tglSelesai.value < minDate) {
+                tglSelesai.value = '';
+                hideDateError();
+            }
+        }
+    }
+
+    function fillDatesFromSession() {
+        const sessionTglMulai = '{{ $pendaftaran["tgl_mulai"] ?? "" }}';
+        const sessionTglSelesai = '{{ $pendaftaran["tgl_selesai"] ?? "" }}';
+        
+        if (sessionTglMulai) {
+            tglMulai.value = sessionTglMulai;
+            setMinEndDate();
+        }
+        
+        if (sessionTglSelesai) {
+            tglSelesai.value = sessionTglSelesai;
+        }
+        
+        // Validasi jika kedua tanggal ada di session
+        if (sessionTglMulai && sessionTglSelesai) {
+            validateDates();
+        }
+    }
+
+    // =============================================
+    // FUNGSI UPLOAD FILE
+    // =============================================
+    function handleFileUpload(event) {
         const file = event.target.files[0];
         const previewContainer = document.getElementById('preview_surat_pengajuan');
         const errorElement = document.getElementById('surat_pengajuan_error');
@@ -229,7 +291,7 @@
         
         if (!file) return;
 
-        // Validasi client-side
+        // Validasi
         const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
         const maxSize = 2 * 1024 * 1024; // 2MB
 
@@ -245,7 +307,7 @@
             return;
         }
 
-        // Show loading
+        // loading
         previewContainer.innerHTML = '<p class="text-blue-500 text-sm">Mengupload file...</p>';
 
         const formData = new FormData();
@@ -275,7 +337,7 @@
                     link.href = data.path;
                     link.target = '_blank';
                     link.className = 'text-blue-600 underline mt-2 inline-block';
-                    link.textContent = 'Lihat File PDF (' + data.filename + ')';
+                    link.textContent = 'Lihat File PDF';
                     previewContainer.appendChild(link);
                 }
                 
@@ -295,13 +357,12 @@
             errorElement.textContent = 'Terjadi kesalahan saat upload.';
             errorElement.classList.remove('hidden');
         });
-    });
-    
+    }
 
-
-    // 🚀 Validasi sebelum submit
-    const form = document.querySelector("form");
-    form.addEventListener("submit", function (e) {
+    // =============================================
+    // FUNGSI FORM VALIDATION 
+    // =============================================
+    function validateForm() {
         let valid = true;
 
         // Validasi sekolah
@@ -315,42 +376,138 @@
             inputSekolah.classList.remove("border-red-500", "focus:ring-red-500");
         }
 
+        // Validasi tanggal
+        if (!validateDates()) {
+            valid = false;
+        }
 
-    // Validasi surat pengajuan (file wajib jika belum ada, max 2MB)
-    if (inputSurat) {
-        const hasFile = inputSurat.dataset.hasFile === "true";
+        // Validasi surat pengajuan
+        if (inputSurat) {
+            const hasFile = inputSurat.dataset.hasFile === "true";
 
-        if (inputSurat.files.length === 0) {
-            if (!hasFile) {
-                // Jika belum ada file lama dan belum upload baru
-                errorMsgSurat.textContent = "Surat pengajuan wajib diunggah.";
-                errorMsgSurat.classList.remove('hidden');
-                inputSurat.focus();
-                valid = false;
+            if (inputSurat.files.length === 0) {
+                if (!hasFile) {
+                    errorMsgSurat.textContent = "Surat pengajuan wajib diunggah.";
+                    errorMsgSurat.classList.remove('hidden');
+                    inputSurat.focus();
+                    valid = false;
+                } else {
+                    errorMsgSurat.classList.add('hidden');
+                }
             } else {
-                // Jika sudah ada file lama, lanjut saja
-                errorMsgSurat.classList.add('hidden');
-            }
-        } else {
-            const file = inputSurat.files[0];
-            if (file.size > 2 * 1024 * 1024) {
-                errorMsgSurat.textContent = "Ukuran file maksimal 2 MB.";
-                errorMsgSurat.classList.remove('hidden');
-                inputSurat.focus();
-                valid = false;
-            } else {
-                errorMsgSurat.classList.add('hidden');
+                const file = inputSurat.files[0];
+                if (file.size > 2 * 1024 * 1024) {
+                    errorMsgSurat.textContent = "Ukuran file maksimal 2 MB.";
+                    errorMsgSurat.classList.remove('hidden');
+                    inputSurat.focus();
+                    valid = false;
+                } else {
+                    errorMsgSurat.classList.add('hidden');
+                }
             }
         }
+
+        return valid;
     }
 
+    // =============================================
+    // EVENT LISTENERS
+    // =============================================
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize session data
+        fillSchoolFromSession();
+        loadProgliFromSession();
+        fillDatesFromSession();
 
+        // Date event listeners
+        tglMulai.addEventListener("change", function () {
+            setMinEndDate();
+            validateDates();
+        });
 
-        // Jika ada error lain, mencegah submit
-        if (!valid) {
+        tglSelesai.addEventListener("change", function () {
+            validateDates();
+        });
+    });
+
+    // School search event listener
+    inputSekolah.addEventListener('keyup', function () {
+        const query = this.value;
+
+        hiddenNpsn.value = '';
+
+        if (query.length < 2) {
+            suggestions.innerHTML = '';
+            suggestions.classList.add('hidden');
+            return;
+        }
+
+        fetch(`/search-sekolah?q=${query}`)
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                data.forEach(item => {
+                    html += `<div class="px-3 py-2 hover:bg-gray-200 cursor-pointer" 
+                             data-npsn="${item.npsn}" 
+                             onclick="selectSchool('${item.nama}', '${item.npsn}')">
+                            ${item.nama}
+                         </div>`;
+                });
+                suggestions.innerHTML = html;
+                suggestions.classList.remove('hidden');
+            });
+    });
+
+    // Department change event listener
+    document.getElementById('id_departemen').addEventListener('change', function() {
+        const idDepartemen = this.value;
+        const progliSelect = document.getElementById('id_progli');
+        
+        progliSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+        
+        if (idDepartemen) {
+            fetch(`/get-progli/${idDepartemen}`)
+                .then(response => response.json())
+                .then(progli => {
+                    progliSelect.innerHTML = '<option value="" disabled selected>Pilih program keahlian</option>';
+                    progli.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.id_progli;
+                        option.textContent = p.nama_progli;
+                        progliSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    progliSelect.innerHTML = '<option value="" disabled selected>Error loading data</option>';
+                });
+        } else {
+            progliSelect.innerHTML = '<option value="" disabled selected>Pilih program keahlian</option>';
+        }
+    });
+
+    // File upload event listener
+    inputSurat.addEventListener('change', handleFileUpload);
+
+    // Form submit event listener
+    form.addEventListener("submit", function (e) {
+        if (!validateForm()) {
             e.preventDefault();
+            // Scroll ke error message
+            document.getElementById('date-error')?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+    });
+
+    // tutup suggestion
+    document.addEventListener('click', function (e) {
+        if (!inputSekolah.contains(e.target)) {
+            suggestions.innerHTML = '';
+            suggestions.classList.add('hidden');
         }
     });
 
 </script>
-@endpush
+@endsection
