@@ -323,7 +323,7 @@ function validateStep(step) {
         }
     });
 
-    if (!valid && ) firstErrorElement{
+    if (!valid && firstErrorElement){
         scrollToElement(firstErrorElement);
     }
 
