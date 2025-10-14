@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.blank')
 
 @section('content')
     <!-- Header -->
@@ -157,13 +157,13 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">TANGGAL MULAI</label>
-                            <input type="date" name="tgl_mulai"
+                            <input type="date" name="tgl_mulai" id="tgl_mulai_{{ $i }}" data-index="{{ $i }}"
                                 value="{{ session('pendaftaran.tgl_mulai') ?? old('tgl_mulai') }}"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">TANGGAL SELESAI</label>
-                            <input type="date" name="tgl_selesai"
+                            <input type="date" name="tgl_selesai" id="tgl_selesai_{{ $i }}" data-index="{{ $i }}"
                                 value="{{ session('pendaftaran.tgl_selesai') ?? old('tgl_selesai') }}"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
                         </div>
@@ -188,7 +188,10 @@
                         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Lanjut</button>
 
                     <button type="submit" id="submitBtn"
-                        class="hidden px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Kirim</button>
+                        class="hidden px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        <i class="fas fa-paper-plane mr-2 text-sm"></i>
+                        Ajukan Pendaftaran
+                    </button>
                 </div>
             </div>
 
@@ -202,14 +205,60 @@
                 @endfor
             </div>
         </form>
+
+
+        <!-- MODAL KONFIRMASI -->
+        <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <!-- Icon -->
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100">
+                        <i class="fas fa-exclamation-triangle text-blue-600 text-xl"></i>
+                    </div>
+                    
+                    <!-- Content -->
+                    <h3 class="text-lg font-medium text-gray-900 mt-2">Konfirmasi Pengajuan</h3>
+                    
+                    <div class="mt-2 px-7 py-3">
+                        <p class="text-sm text-gray-500">
+                            Apakah Anda yakin ingin mengajukan pendaftaran? 
+                            Pastikan semua data siswa sudah benar.
+                        </p>
+                        
+                        <!-- Detail Data -->
+                        <div class="mt-4 text-left bg-gray-50 p-3 rounded-lg">
+                            <h4 class="font-medium text-gray-700 text-sm mb-2">Ringkasan Data:</h4>
+                            <div id="confirmationDetails" class="text-xs text-gray-600 space-y-1">
+                                <p><strong>Jumlah Siswa:</strong> <span id="totalStudents">{{ $jumlah_siswa }}</span></p>
+                                <p><strong>Status Validasi:</strong> <span id="validationStatus" class="text-green-600">Semua data valid</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex justify-center space-x-3 mt-4">
+                        <button type="button" id="cancelConfirm"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            Periksa Lagi
+                        </button>
+                        <button type="button" id="confirmSubmit"
+                            class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300">
+                            Ya, Ajukan Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
 <script>
-
-
 // =============================================
 // DEKLARASI VARIABEL
 // =============================================
+const tglMulai = document.getElementById("tgl_mulai");
+const tglSelesai = document.getElementById("tgl_selesai");
+
 let currentStep = 1;
 let steps; 
 let totalSteps;
@@ -220,7 +269,7 @@ const pageBtns = document.querySelectorAll(".page-btn");
 
 
 // =============================================
-// FUNGSI BANTUAN (HELPER FUNCTIONS)
+// HELPER
 // =============================================
 function showError(errorMsg, message, input) {
     if (errorMsg) {
@@ -323,6 +372,14 @@ function validateStep(step) {
         }
     });
 
+    if (!validateDates(step)) {
+        valid = false;
+        const tglSelesai = steps[step - 1].querySelector(`#tgl_selesai_${step-1}`);
+        if (tglSelesai && !firstErrorElement) {
+            firstErrorElement = tglSelesai;
+        }
+    }
+
     if (!valid && firstErrorElement){
         scrollToElement(firstErrorElement);
     }
@@ -360,6 +417,9 @@ function validateSingleInput(input) {
         } else {
             input.classList.add("border-red-500");
         }
+    } else if (input.name.includes('tgl_mulai') || input.name.includes('tgl_selesai')) {
+        const step = parseInt(input.getAttribute('data-index')) + 1;
+        validateDates(step);
     } else {
         if (input.value.trim() !== "") {
             input.classList.add("border-green-500"); 
@@ -370,14 +430,110 @@ function validateSingleInput(input) {
 }
 
 function initRealTimeValidation() {
-    steps.forEach((step) => {
+    steps.forEach((step, index) => {
+        const stepNumber = index + 1;
         const inputs = step.querySelectorAll("input, select, textarea");
         
         inputs.forEach(input => {
             input.addEventListener('input', () => validateSingleInput(input));
             input.addEventListener('change', () => validateSingleInput(input));
         });
+
+        // ⭐⭐ EVENT LISTENERS UNTUK TANGGAL DI SETIAP STEP
+        const tglMulai = step.querySelector(`#tgl_mulai_${index}`);
+        const tglSelesai = step.querySelector(`#tgl_selesai_${index}`);
+
+        if (tglMulai && tglSelesai) {
+            tglMulai.addEventListener("change", function () {
+                setMinEndDate(stepNumber);
+                validateDates(stepNumber);
+            });
+
+            tglSelesai.addEventListener("change", function () {
+                validateDates(stepNumber);
+            });
+        }
     });
+}
+
+
+// =============================================
+// FUNGSI VALIDASI DATES SISWA
+// =============================================
+function validateDates(step) {
+    const currentForm = steps[step - 1];
+    const tglMulai = currentForm.querySelector(`#tgl_mulai_${step-1}`);
+    const tglSelesai = currentForm.querySelector(`#tgl_selesai_${step-1}`);
+    
+    if (!tglMulai || !tglSelesai) return true;
+    
+    const startDate = new Date(tglMulai.value);
+    const endDate = new Date(tglSelesai.value);
+    
+    // Reset error states
+    tglMulai.classList.remove('border-red-500');
+    tglSelesai.classList.remove('border-red-500');
+    hideDateError(step);
+    
+    // Validasi: Cek jika kedua tanggal terisi
+    if (!tglMulai.value || !tglSelesai.value) {
+        return true;
+    }
+    
+    // Validasi: Tanggal selesai harus setelah tanggal mulai
+    if (endDate <= startDate) {
+        showDateError('Tanggal selesai harus setelah tanggal mulai', step);
+        tglSelesai.classList.add('border-red-500');
+        return false;
+    }
+    
+    return true;
+}
+
+function showDateError(message, step) {
+    const currentForm = steps[step - 1];
+    let errorElement = currentForm.querySelector(`#date-error-${step}`);
+    
+    if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = `date-error-${step}`;
+        errorElement.className = 'mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg';
+        // Tambahkan error element setelah container tanggal
+        const dateContainer = currentForm.querySelector('.grid.md\\:grid-cols-2.gap-4');
+        dateContainer.parentNode.appendChild(errorElement);
+    }
+    errorElement.innerHTML = `<p class="text-sm font-medium">${message}</p>`;
+    errorElement.classList.remove('hidden');
+}
+
+function hideDateError(step) {
+    const currentForm = steps[step - 1];
+    const errorElement = currentForm.querySelector(`#date-error-${step}`);
+    if (errorElement) {
+        errorElement.classList.add('hidden');
+    }
+}
+
+function setMinEndDate(step) {
+    const currentForm = steps[step - 1];
+    const tglMulai = currentForm.querySelector(`#tgl_mulai_${step-1}`);
+    const tglSelesai = currentForm.querySelector(`#tgl_selesai_${step-1}`);
+    
+    if (!tglMulai || !tglSelesai) return;
+    
+    if (tglMulai.value) {
+        let startDate = new Date(tglMulai.value);
+        startDate.setDate(startDate.getDate() + 1);
+        
+        let minDate = startDate.toISOString().split("T")[0];
+        tglSelesai.min = minDate;
+        
+        // Jika tgl_selesai sudah ada tapi < minDate, reset
+        if (tglSelesai.value && tglSelesai.value < minDate) {
+            tglSelesai.value = '';
+            hideDateError(step);
+        }
+    }
 }
 
 
@@ -477,6 +633,44 @@ function showStep(step) {
 
 
 // =============================================
+// FUNGSI KONFIRMASI SUBMIT
+// =============================================
+function showConfirmationModal() {
+    let allValid = true;
+    let invalidSteps = [];
+    
+    for (let i = 1; i <= totalSteps; i++) {
+        if (!validateStep(i)) {
+            allValid = false;
+            invalidSteps.push(i);
+        }
+    }
+    
+    // Update status validasi di modal
+    const validationStatus = document.getElementById('validationStatus');
+    if (allValid) {
+        validationStatus.textContent = "Semua data valid";
+        validationStatus.className = "text-green-600";
+    } else {
+        validationStatus.textContent = `Data siswa ${invalidSteps.join(', ')} perlu diperbaiki`;
+        validationStatus.className = "text-red-600";
+        return false; 
+    }
+    
+    document.getElementById('confirmationModal').classList.remove('hidden');
+    return true;
+}
+
+function hideConfirmationModal() {
+    document.getElementById('confirmationModal').classList.add('hidden');
+}
+
+function submitForm() {
+    document.querySelector('form').submit();
+}
+
+
+// =============================================
 // EVENT LISTENERS
 // =============================================
 document.addEventListener("DOMContentLoaded", function() {
@@ -488,6 +682,17 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('.foto-siswa-input').forEach(input => {
         input.addEventListener('change', handleStudentPhotoUpload);
     });
+
+    if (tglMulai && tglSelesai) {
+        tglMulai.addEventListener("change", function () {
+            setMinEndDate();
+            validateDates();
+        });
+
+        tglSelesai.addEventListener("change", function () {
+            validateDates();
+        });
+    }
 
     nextBtn.addEventListener("click", () => {
         if (validateStep(currentStep) && currentStep < totalSteps) {
@@ -510,32 +715,29 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    submitBtn.addEventListener("click", (e) => {
-        let allValid = true;
-        let firstErrorStep = null;
-        let firstErrorElement = null;
 
-        for (let i = 1; i <= totalSteps; i++) {
-            if (!validateStep(i)) {
-                allValid = false;
-                firstErrorStep = i;
-                
-                const inputs = steps[i - 1].querySelectorAll("input[required], select[required], textarea[required]");
-                inputs.forEach(input => {
-                    if (input.classList.contains('border-red-500') && !firstErrorElement) {
-                        firstErrorElement = input;
-                    }
-                });
-                break;
-            }
+    document.getElementById('confirmSubmit').addEventListener('click', submitForm);
+    document.getElementById('cancelConfirm').addEventListener('click', hideConfirmationModal);
+    
+    document.getElementById('confirmationModal').addEventListener('click', function(e) {
+        if (e.target.id === 'confirmationModal') {
+            hideConfirmationModal();
         }
+    });
 
-        if (!allValid) {
-            e.preventDefault();
-            showStep(firstErrorStep);
-            
-            if (firstErrorElement) {
-                setTimeout(() => scrollToElement(firstErrorElement), 500);
+    submitBtn.addEventListener("click", (e) => {
+        e.preventDefault(); 
+        
+        if (!showConfirmationModal()) {
+            let firstErrorStep = null;
+            for (let i = 1; i <= totalSteps; i++) {
+                if (!validateStep(i)) {
+                    firstErrorStep = i;
+                    break;
+                }
+            }
+            if (firstErrorStep) {
+                showStep(firstErrorStep);
             }
         }
     });

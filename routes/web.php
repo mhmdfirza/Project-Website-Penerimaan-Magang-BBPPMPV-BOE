@@ -7,6 +7,15 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/tentang', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/syarat-pkl', function () {
+    return view('requirements');
+})->name('requirements');
+
+
 // step 1: form pendaftaran
 Route::get('/pendaftaran', [PendaftaranController::class, 'formPendaftaran'])->name('pendaftaran.form');
 Route::post('/pendaftaran', [PendaftaranController::class, 'storePendaftaran'])->name('pendaftaran.store');
