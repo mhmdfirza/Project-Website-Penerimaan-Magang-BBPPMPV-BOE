@@ -56,6 +56,7 @@
                     <ul class="space-y-2">
                         <li><a href="{{ route('pendaftaran.form') }}" class="hover:text-blue-200">Pendaftaran</a></li>
                         <li><a href="{{ route('requirements') }}" class="hover:text-blue-200">Syarat PKL</a></li>
+                        <li><a href="{{ route('about') }}" class="hover:text-blue-200">Tentang</a></li>
                     </ul>
                 </div>
             </div>
