@@ -335,8 +335,6 @@ class PendaftaranController extends Controller
             DB::commit();
             session(['pendaftaran' => $pendaftaran]);
 
-            session()->forget('pendaftaran'); // bersihkan session
-
 
 
             return redirect()->route('pendaftaran.selesai');
@@ -363,6 +361,7 @@ class PendaftaranController extends Controller
     // Step 4: Selesai
     public function selesai()
     {
+        session()->forget('pendaftaran'); // bersihkan session
         return view('pendaftaran.selesai');
     }
 
