@@ -19,7 +19,7 @@
                 <!-- Heading dengan animasi -->
                 <h2 class="text-3xl md:text-4xl font-bold mb-4 transform translate-y-8 opacity-0 animate-fade-in-up">
                     SELAMAT DATANG DI SISTEM PKL <br>
-                    BBPPMBV-BOE MALANG
+                    BBPPMPV-BOE MALANG
                 </h2>
                 
                 <!-- Buttons dengan animasi delayed -->

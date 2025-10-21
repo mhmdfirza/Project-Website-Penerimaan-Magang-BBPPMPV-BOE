@@ -1,9 +1,9 @@
 <header id="navbar" class="fixed top-0 left-0 w-full z-[999] bg-transparent transition-all duration-300">
-    <div class="w-full flex justify-between items-center px-4 py-2 md:px-5 md:py-3">
+    <div class="w-full flex justify-between items-center px-4 py-2 md:px-5 md:py-1">
 
         {{-- <!-- Logo --> --}}
         <img src="{{ asset('img/logo-putih.png') }}" alt="Logo" 
-             class="h-10 md:h-18 w-auto transition-all duration-300" id="logo" />
+             class="h-15 md:h-24 w-auto transition-all duration-300" id="logo" />
 
         {{-- <!-- Desktop Navbar --> --}}
         <nav class="hidden md:block">
