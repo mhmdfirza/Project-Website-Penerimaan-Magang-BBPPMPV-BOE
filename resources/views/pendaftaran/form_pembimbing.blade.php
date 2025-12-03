@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.blank')
 
 @section('content')
     <!-- Header -->
@@ -53,11 +53,11 @@
             <!-- Button Group -->
             <div class="flex space-x-4 pt-4">
                 <a href="{{ route('pendaftaran.form') }}"
-                    class="flex-1 py-2.5 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg text-center transition">
+                    class="cursor-pointer flex-1 py-2.5 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg text-center transition">
                     Kembali
                 </a>
                 <button type="submit"
-                    class="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg flex items-center justify-center transition">
+                    class="cursor-pointer flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg flex items-center justify-center transition">
                     Lanjutkan <i class="fas fa-arrow-right ml-2 text-sm"></i>
                 </button>
             </div>

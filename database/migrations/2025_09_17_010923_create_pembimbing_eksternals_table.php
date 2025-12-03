@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pembimbing_eksternal', function (Blueprint $table) {
-            $table->id('id_pembimbing_e');
-            $table->string('nama_pembimbing_e');
-            $table->string('sekolah');
+            $table->increments('id_pembimbing_e');
+            $table->string('nama_pembimbing_e', 255);
+            $table->char('npsn_sekolah', 11);
             $table->string('no_hp', 20);
             $table->string('email', 100);
+
+            $table->foreign('npsn_sekolah')->references('npsn')->on('sekolah_smk');
             $table->timestamps();
         });
     }

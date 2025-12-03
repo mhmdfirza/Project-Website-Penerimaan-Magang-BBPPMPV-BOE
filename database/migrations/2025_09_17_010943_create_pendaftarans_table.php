@@ -12,18 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pendaftaran', function (Blueprint $table) {
-            $table->id('id_pendaftaran');
-            $table->string('asal_sekolah');
-            $table->tinyInteger('jumlah_siswa');
-            $table->unsignedBigInteger('id_pembimbing_e');
-            $table->unsignedBigInteger('id_departemen');
-            $table->unsignedBigInteger('id_progli');
+            $table->increments('id_pendaftaran');
+            $table->char('npsn_sekolah', 11);
+            $table->Integer('jumlah_siswa');
+            $table->unsignedInteger('id_pembimbing_e');
+            $table->unsignedInteger('id_departemen');
+            $table->unsignedInteger('id_progli');
             $table->string('surat_pengajuan')->nullable();
-            $table->date('tgl_pengajuan');
-            $table->string('status', 50);
+            $table->date('tgl_mulai');
+            $table->date('tgl_selesai');
+            $table->enum('status', ['ditolak', 'diproses', 'diterima'])->nullable();
+
+            $table->foreign('npsn_sekolah')->references('npsn')->on('sekolah_smk')->cascadeOnDelete();
             $table->foreign('id_pembimbing_e')->references('id_pembimbing_e')->on('pembimbing_eksternal')->cascadeOnDelete();
-            $table->foreign('id_departemen')->references('id_departemen')->on('departments')->cascadeOnDelete();
-            $table->foreign('id_progli')->references('id_progli')->on('proglis')->cascadeOnDelete();
+            $table->foreign('id_departemen')->references('id_departemen')->on('departemen')->cascadeOnDelete();
+            $table->foreign('id_progli')->references('id_progli')->on('progli')->cascadeOnDelete();
             $table->timestamps();
         });
     }

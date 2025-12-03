@@ -12,13 +12,14 @@ class Pendaftaran extends Model
     protected $table = 'pendaftaran';
     protected $primaryKey = 'id_pendaftaran';
     protected $fillable = [
-        'asal_sekolah',
+        'npsn_sekolah',
         'jumlah_siswa',
         'id_pembimbing_e',
         'id_departemen',
         'id_progli',
         'surat_pengajuan',
-        'tgl_pengajuan',
+        'tgl_mulai',
+        'tgl_selesai',
         'status'
     ];
 

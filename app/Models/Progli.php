@@ -9,10 +9,11 @@ class Progli extends Model
 {
     use HasFactory;
 
+    protected $table = 'progli'; 
     protected $primaryKey = 'id_progli';
     protected $fillable = ['id_departemen', 'nama_progli'];
 
-    public function department()
+    public function departemen()
     {
         return $this->belongsTo(Department::class, 'id_departemen');
     }

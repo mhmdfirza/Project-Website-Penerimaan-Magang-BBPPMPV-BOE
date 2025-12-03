@@ -11,7 +11,7 @@ class PembimbingEksternal extends Model
 
     protected $table = 'pembimbing_eksternal';
     protected $primaryKey = 'id_pembimbing_e';
-    protected $fillable = ['nama_pembimbing_e', 'sekolah', 'no_hp', 'email'];
+    protected $fillable = ['nama_pembimbing_e', 'npsn_sekolah', 'no_hp', 'email'];
 
     public function pendaftaran()
     {

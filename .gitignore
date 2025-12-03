@@ -18,6 +18,8 @@ public_html/hot
 
 storage/*.key
 .env
+log.txt
+log1.txt
 Homestead.yaml
 Homestead.json
 /.vagrant
