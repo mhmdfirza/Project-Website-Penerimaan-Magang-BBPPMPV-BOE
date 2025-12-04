@@ -87,7 +87,7 @@ Website dikembangkan menggunakan **Laravel 12, Tailwind CSS 4, dan MySQL**.
 * Tim Developer BOE Malang
 * [@mhmdfirza](https://github.com/mhmdfirza)
 * [@vembiyusuf](https://github.com/vembiyusuf)
-* [@SoraYaki04](https://github.com/SoraYki04)
+* [@SoraYaki04](https://github.com/SoraYaki04)
 
 ---
 
