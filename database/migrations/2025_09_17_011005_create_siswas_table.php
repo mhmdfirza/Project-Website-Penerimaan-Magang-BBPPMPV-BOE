@@ -29,7 +29,6 @@ return new class extends Migration
             $table->enum('status', ['ditolak', 'diproses', 'diterima'])->nullable();
             $table->unsignedInteger('id_pembimbing_i')->nullable();
             $table->unsignedInteger('id_pendaftaran');
-
             $table->foreign('npsn_sekolah')->references('npsn')->on('sekolah_smk');
             $table->foreign('id_pembimbing_i')->references('id_pembimbing_i')->on('pembimbing_internal')->nullOnDelete();
             $table->foreign('id_pendaftaran')->references('id_pendaftaran')->on('pendaftaran')->cascadeOnDelete();

@@ -22,7 +22,6 @@ return new class extends Migration
             $table->date('tgl_mulai');
             $table->date('tgl_selesai');
             $table->enum('status', ['ditolak', 'diproses', 'diterima'])->nullable();
-
             $table->foreign('npsn_sekolah')->references('npsn')->on('sekolah_smk')->cascadeOnDelete();
             $table->foreign('id_pembimbing_e')->references('id_pembimbing_e')->on('pembimbing_eksternal')->cascadeOnDelete();
             $table->foreign('id_departemen')->references('id_departemen')->on('departemen')->cascadeOnDelete();
