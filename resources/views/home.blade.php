@@ -28,7 +28,7 @@
                         class="border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-primary transition duration-300 transform translate-y-8 opacity-0 animate-fade-in-up animation-delay-500">
                         Daftar Sekarang
                     </a>
-                    <a href="#"
+                    <a href="{{ route('requirements') }}"
                         class="bg-white text-primary px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition duration-300 transform translate-y-8 opacity-0 animate-fade-in-up animation-delay-700">
                         Syarat PKL
                     </a>

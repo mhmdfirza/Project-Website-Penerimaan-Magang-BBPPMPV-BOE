@@ -20,8 +20,8 @@ class PendaftaranController extends Controller
         $query = $request->get('q', '');
 
         $sekolah = DB::table('sekolah_smk')
-            ->select('npsn', 'nama')
-            ->where('nama', 'like', "%{$query}%")
+            ->select('npsn', 'nama_sekolah')
+            ->where('nama_sekolah', 'like', "%{$query}%")
             ->limit(10)
             ->get();
 
@@ -124,6 +124,8 @@ class PendaftaranController extends Controller
 
     public function formPendaftaran()
     {
+        session(['pendaftaran_in_progress' => true]); 
+
         $departemen = Department::all();
         $progli = Progli::all();
         $pendaftaran = session('pendaftaran', []);
@@ -176,12 +178,14 @@ class PendaftaranController extends Controller
     // * Step 2: Form Pembimbing
     public function formPembimbing()
     {
+        session(['pendaftaran_in_progress' => true]); 
+
         $pendaftaran = session('pendaftaran', []);
 
-        if (isset($pendaftaran['siswa'])) {
-            unset($pendaftaran['siswa']);
-            session(['pendaftaran' => $pendaftaran]);
-        }
+        // if (isset($pendaftaran['siswa'])) {
+        //     unset($pendaftaran['siswa']);
+        //     session(['pendaftaran' => $pendaftaran]);
+        // }
 
         return view('pendaftaran.form_pembimbing', compact('pendaftaran'));
     }
@@ -211,6 +215,8 @@ class PendaftaranController extends Controller
     // * Step 3: Form Siswa
     public function formSiswa()
     {
+        session(['pendaftaran_in_progress' => true]); 
+
         $pendaftaran = session('pendaftaran', []);
         if (!isset($pendaftaran['pembimbing']['jumlah_siswa'])) {
             return redirect()->route('pendaftaran.form');
@@ -231,7 +237,7 @@ class PendaftaranController extends Controller
         $request->validate([
             'siswa' => 'required|array|min:' . $jumlah_siswa . '|max:' . $jumlah_siswa,
             'siswa.*.nisn'          => 'required',
-            'siswa.*.nama'          => 'required',
+            'siswa.*.nama_siswa'    => 'required',
             'siswa.*.tempat_lahir'  => 'required',
             'siswa.*.tanggal_lahir' => 'required|date',
             'siswa.*.kelas'         => 'required',
@@ -278,7 +284,7 @@ class PendaftaranController extends Controller
                 'surat_pengajuan'   => $suratPath,
                 'tgl_mulai'         => $pendaftaran['tgl_mulai'],
                 'tgl_selesai'       => $pendaftaran['tgl_selesai'],
-                'status'            => 'diproses',
+                'status_pendaftaran'=> 'diproses',
             ]);
 
             $id_pendaftaran = $dbPendaftaran->id_pendaftaran;
@@ -312,7 +318,7 @@ class PendaftaranController extends Controller
 
                 Siswa::create([
                     'nisn'              => $data['nisn'],
-                    'nama'              => $data['nama'],
+                    'nama_siswa'        => $data['nama_siswa'],
                     'tempat_lahir'      => $data['tempat_lahir'],
                     'tanggal_lahir'     => $data['tanggal_lahir'],
                     'kelas'             => $data['kelas'],
@@ -324,7 +330,7 @@ class PendaftaranController extends Controller
                     'tgl_mulai'         => $tglMulai,
                     'tgl_selesai'       => $tglSelesai,
                     'foto'              => $fotoPath,
-                    'status'            => 'diproses',
+                    'status_siswa'      => 'diproses',
                     'id_pembimbing_i'   => null,
                     'id_pendaftaran'    => $id_pendaftaran,
                 ]);
@@ -340,8 +346,7 @@ class PendaftaranController extends Controller
             return redirect()->route('pendaftaran.selesai');
 
         } catch (\Exception $e) {
-            DB::rollBack();
-
+            
             // Hapus file yang sudah terupload jika ada error
             if (isset($suratPath) && Storage::disk('public')->exists($suratPath)) {
                 Storage::disk('public')->delete($suratPath);
@@ -351,17 +356,20 @@ class PendaftaranController extends Controller
             if (isset($fotoPath) && Storage::disk('public')->exists($fotoPath)) {
                 Storage::disk('public')->delete($fotoPath);
             }
-
+            
+            DB::rollBack();
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
-                ->withInput();
+            ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+            ->withInput();
+            
         }
     }
 
     // Step 4: Selesai
     public function selesai()
     {
-        session()->forget('pendaftaran'); // bersihkan session
+        session()->forget('pendaftaran_in_progress');
+        session()->forget('pendaftaran'); 
         return view('pendaftaran.selesai');
     }
 
@@ -383,7 +391,8 @@ class PendaftaranController extends Controller
                 }
             }
         }
-        
+
+        session()->forget('pendaftaran_in_progress');
         session()->forget('pendaftaran');
         return redirect()->route('home')->with('info', 'Pendaftaran dibatalkan.');
     }

@@ -146,6 +146,8 @@ const errorMsgSurat = document.getElementById('surat_pengajuan_error');
 const form = document.querySelector("form");
 
 
+
+
 // =============================================
 // FUNGSI BANTUAN (HELPER FUNCTIONS)
 // =============================================
@@ -180,8 +182,8 @@ function hideElement(element) {
 // =============================================
 // FUNGSI SCHOOL SEARCH
 // =============================================
-function selectSchool(nama, npsn) {
-    inputSekolah.value = nama;
+function selectSchool(nama_sekolah, npsn) {
+    inputSekolah.value = nama_sekolah;
     hiddenNpsn.value = npsn;
     suggestions.innerHTML = '';
     hideElement(suggestions);
@@ -473,8 +475,8 @@ inputSekolah.addEventListener('keyup', function () {
             data.forEach(item => {
                 html += `<div class="px-3 py-2 hover:bg-gray-200 cursor-pointer" 
                          data-npsn="${item.npsn}" 
-                         onclick="selectSchool('${item.nama}', '${item.npsn}')">
-                        ${item.nama}
+                         onclick="selectSchool('${item.nama_sekolah}', '${item.npsn}')">
+                        ${item.nama_sekolah}
                      </div>`;
             });
             suggestions.innerHTML = html;

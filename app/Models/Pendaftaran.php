@@ -20,7 +20,7 @@ class Pendaftaran extends Model
         'surat_pengajuan',
         'tgl_mulai',
         'tgl_selesai',
-        'status'
+        'status_pendaftaran'
     ];
 
     public function pembimbingEksternal()

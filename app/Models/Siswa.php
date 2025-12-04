@@ -13,7 +13,7 @@ class Siswa extends Model
     protected $primaryKey = 'id_siswa';
     protected $fillable = [
         'nisn',
-        'nama',
+        'nama_siswa',
         'tempat_lahir',
         'tanggal_lahir',
         'kelas',
@@ -25,7 +25,7 @@ class Siswa extends Model
         'tgl_mulai',
         'tgl_selesai',
         'foto',
-        'status',
+        'status_siswa',
         'id_pembimbing_i',
         'id_pendaftaran'
     ];
