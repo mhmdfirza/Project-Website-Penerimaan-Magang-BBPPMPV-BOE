@@ -11,52 +11,53 @@ class ClearPendaftaranSession
     public function handle(Request $request, Closure $next)
     {
         $pendaftaran = session('pendaftaran');
+        $routeName = $request->route()->getName();
 
-        // Jika sedang dalam proses pendaftaran
-        if (session()->has('pendaftaran_in_progress')) {
+        // Jika session korup → hapus semua
+        if (session()->has('pendaftaran_in_progress') && empty($pendaftaran)) {
+            session()->forget('pendaftaran_in_progress');
+            session()->forget('pendaftaran');
+        }
 
-            // Route yang diperbolehkan (bagian dari alur pendaftaran)
-            $allowedRoutes = [
-                'pendaftaran.form',
-                'pendaftaran.store',
-                'pendaftaran.uploadSurat',
+        // Jalur pendaftaran yang valid
+        $allowedRoutes = [
+            'pendaftaran.form',
+            'pendaftaran.store',
+            'pendaftaran.uploadSurat',
 
-                'pembimbing.form',
-                'pembimbing.store',
+            'pembimbing.form',
+            'pembimbing.store',
 
-                'siswa.form',
-                'siswa.store',
-                'siswa.uploadFotoSiswa',
+            'siswa.form',
+            'siswa.store',
+            'siswa.uploadFotoSiswa',
 
-                'pendaftaran.cancel',
-                'pendaftaran.selesai',
-            ];
+            'pendaftaran.cancel',
+            'pendaftaran.selesai',
+        ];
 
-            $routeName = $request->route()->getName();
+        // Jika keluar jalur
+        if (
+            session()->has('pendaftaran_in_progress') &&
+            !in_array($routeName, $allowedRoutes)
+        ) {
+            // Hapus file surat
+            if (!empty($pendaftaran['surat_pengajuan'])) {
+                Storage::disk('local')->delete($pendaftaran['surat_pengajuan']);
+            }
 
-            // Jika user keluar dari jalur pendaftaran
-            if (!in_array($routeName, $allowedRoutes)) {
-
-                // Hapus surat pengajuan sementara
-                if (!empty($pendaftaran['surat_pengajuan']) &&
-                    Storage::disk('public')->exists($pendaftaran['surat_pengajuan'])) {
-                    Storage::disk('public')->delete($pendaftaran['surat_pengajuan']);
-                }
-
-                // Hapus semua foto siswa temp
-                if (!empty($pendaftaran['siswa'])) {
-                    foreach ($pendaftaran['siswa'] as $data) {
-                        if (!empty($data['foto_temp']) &&
-                            Storage::disk('public')->exists($data['foto_temp'])) {
-                            Storage::disk('public')->delete($data['foto_temp']);
-                        }
+            // Hapus foto siswa temp
+            if (!empty($pendaftaran['siswa'])) {
+                foreach ($pendaftaran['siswa'] as $data) {
+                    if (!empty($data['foto_temp'])) {
+                        Storage::disk('local')->delete($data['foto_temp']);
                     }
                 }
-
-                // Hapus semua session
-                session()->forget('pendaftaran_in_progress');
-                session()->forget('pendaftaran');
             }
+
+            // Reset session
+            session()->forget('pendaftaran_in_progress');
+            session()->forget('pendaftaran');
         }
 
         return $next($request);

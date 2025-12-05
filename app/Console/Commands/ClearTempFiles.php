@@ -12,28 +12,28 @@ class ClearTempFiles extends Command
 
     public function handle()
     {
-        $files = Storage::disk('public')->files('temp/surat_pengajuan');
+        $files = Storage::disk('local')->files('temp/surat_pengajuan');
 
         foreach ($files as $file) {
-            $lastModified = Storage::disk('public')->lastModified($file);
+            $lastModified = Storage::disk('local')->lastModified($file);
             $fileAge = time() - $lastModified;
 
             // Hapus file yang lebih dari 1 jam
             if ($fileAge > 3600) {
-                Storage::disk('public')->delete($file);
+                Storage::disk('local')->delete($file);
                 $this->info("Deleted: {$file}");
             }
         }
 
-        $files = Storage::disk('public')->files('temp/foto_siswa');
+        $files = Storage::disk('local')->files('temp/foto_siswa');
 
         foreach ($files as $file) {
-            $lastModified = Storage::disk('public')->lastModified($file);
+            $lastModified = Storage::disk('local')->lastModified($file);
             $fileAge = time() - $lastModified;
 
             // Hapus file yang lebih dari 1 jam
             if ($fileAge > 3600) {
-                Storage::disk('public')->delete($file);
+                Storage::disk('local')->delete($file);
                 $this->info("Deleted: {$file}");
             }
         }

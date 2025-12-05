@@ -41,15 +41,15 @@ class PendaftaranController extends Controller
     // ? Uplaod surat
     public function uploadSurat(Request $request)
     {
-        try {
+        try { 
             $request->validate([
                 'surat_pengajuan' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048'
             ]);
 
             $pendaftaran = session('pendaftaran', []);
 
-            // Simpan file sementara ke storage/app/public/temp
-            $tempSuratPath = $request->file('surat_pengajuan')->store('temp/surat_pengajuan', 'public');
+            // Simpan file sementara ke storage/app/private/temp
+            $tempSuratPath = $request->file('surat_pengajuan')->store('temp/surat_pengajuan/');
             $pendaftaran['surat_pengajuan'] = $tempSuratPath;
             
             // Update session
@@ -57,7 +57,7 @@ class PendaftaranController extends Controller
 
             return response()->json([
                 'success' => true,
-                'path' => Storage::url($tempSuratPath),
+                'path' => url('/api/private-temp/' . $tempSuratPath),
                 'filename' => $request->file('surat_pengajuan')->getClientOriginalName(),
                 'extension' => $request->file('surat_pengajuan')->getClientOriginalExtension()
             ]);
@@ -77,28 +77,28 @@ class PendaftaranController extends Controller
         try {
             $request->validate([
                 'foto_siswa' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-                'index' => 'required|integer' // ⭐ BARU: parameter index untuk tahu siswa keberapa
+                'index' => 'required|integer' // parameter index untuk tahu siswa keberapa
             ]);
 
             $pendaftaran = session('pendaftaran', []);
             $index = $request->index;
 
-            // ⭐ BARU: Hapus foto temp sebelumnya JIKA ADA untuk siswa ini
+            // Hapus foto temp sebelumnya JIKA ADA untuk siswa ini
             if (!empty($pendaftaran['siswa'][$index]['foto_temp']) && 
-                Storage::disk('public')->exists($pendaftaran['siswa'][$index]['foto_temp'])) {
-                Storage::disk('public')->delete($pendaftaran['siswa'][$index]['foto_temp']);
+                Storage::disk('local')->exists($pendaftaran['siswa'][$index]['foto_temp'])) {
+                Storage::disk('local')->delete($pendaftaran['siswa'][$index]['foto_temp']);
             }
 
-            // Simpan file sementara ke storage/app/public/temp/foto_siswa
-            $tempFotoPath = $request->file('foto_siswa')->store('temp/foto_siswa', 'public');
+            // Simpan file sementara ke storage/app/private/temp/foto_siswa
+            $tempFotoPath = $request->file('foto_siswa')->store('temp/foto_siswa/');
             
-            // ⭐ MODIFIKASI: Simpan di session dengan struktur array berdasarkan index
+            // Simpan di session dengan struktur array berdasarkan index
             if (!isset($pendaftaran['siswa'])) {
                 $pendaftaran['siswa'] = []; // Pastikan array siswa ada
             }
             
             $pendaftaran['siswa'][$index] = [
-                'foto_temp' => $tempFotoPath, // ⭐ BARU: Simpan path temporary
+                'foto_temp' => $tempFotoPath, // Simpan path temporary
                 'foto_filename' => $request->file('foto_siswa')->getClientOriginalName()
             ];
             
@@ -106,9 +106,9 @@ class PendaftaranController extends Controller
 
             return response()->json([
                 'success' => true,
-                'path' => Storage::url($tempFotoPath),
+                'path' => url('/api/private-temp/' . $tempFotoPath),
                 'filename' => $request->file('foto_siswa')->getClientOriginalName(),
-                'index' => $index // ⭐ BARU: Return index untuk JavaScript
+                'index' => $index // Return index untuk JavaScript
             ]);
 
         } catch (\Exception $e) {
@@ -124,6 +124,11 @@ class PendaftaranController extends Controller
 
     public function formPendaftaran()
     {
+
+        if (!session()->has('pendaftaran_in_progress')) {
+            session()->forget('pendaftaran');
+        }
+
         session(['pendaftaran_in_progress' => true]); 
 
         $departemen = Department::all();
@@ -159,12 +164,12 @@ class PendaftaranController extends Controller
 
         if ($request->hasFile('surat_pengajuan')) {
             // hapus file lama jika ada
-            if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('public')->exists($pendaftaran['surat_pengajuan'])) {
-                Storage::disk('public')->delete($pendaftaran['surat_pengajuan']);
+            if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('local')->exists($pendaftaran['surat_pengajuan'])) {
+                Storage::disk('local')->delete($pendaftaran['surat_pengajuan']);
             }
 
             // Simpan
-            $suratPath = $request->file('surat_pengajuan')->store('temp/surat_pengajuan', 'public');
+            $suratPath = $request->file('surat_pengajuan')->store('temp/surat_pengajuan', 'local');
             $pendaftaran['surat_pengajuan'] = $suratPath;
         }
 
@@ -230,19 +235,18 @@ class PendaftaranController extends Controller
     public function storeSiswa(Request $request)
     {
 
-        
         $pendaftaran = session('pendaftaran', []);
         $jumlah_siswa = $pendaftaran['pembimbing']['jumlah_siswa'] ?? 0;
 
         $request->validate([
-            'siswa' => 'required|array|min:' . $jumlah_siswa . '|max:' . $jumlah_siswa,
+            'siswa'                 => 'required|array|min:' . $jumlah_siswa . '|max:' . $jumlah_siswa,
             'siswa.*.nisn'          => 'required',
             'siswa.*.nama_siswa'    => 'required',
             'siswa.*.tempat_lahir'  => 'required',
             'siswa.*.tanggal_lahir' => 'required|date',
             'siswa.*.kelas'         => 'required',
             'siswa.*.agama'         => 'required|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
-            'siswa.*.foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2mb
+            'siswa.*.foto'          => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2mb
         ]);
 
 
@@ -253,7 +257,7 @@ class PendaftaranController extends Controller
 
             $pendaftaran['siswa'] = $pendaftaran['siswa'] ?? [];
 
-            // ✅ simpan ke DB baru di step ini
+            // simpan ke DB baru di step ini
             $pembimbing = PembimbingEksternal::create([
                 'nama_pembimbing_e' => $pendaftaran['pembimbing']['nama'],
                 'npsn_sekolah'      => $pendaftaran['npsn_sekolah'],
@@ -264,12 +268,20 @@ class PendaftaranController extends Controller
 
             // surat pengajuan temp -> main
             $suratPath = null;
-            if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('public')->exists($pendaftaran['surat_pengajuan'])) {
+
+            if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('local')->exists($pendaftaran['surat_pengajuan'])) {
+
                 $originalFileName = pathinfo($pendaftaran['surat_pengajuan'], PATHINFO_BASENAME);
-                $suratPath = 'surat_pengajuan/' . date('Y/m/d') . '/' . uniqid() . '_' . $originalFileName;
-                
-                Storage::disk('public')->move(
-                    $pendaftaran['surat_pengajuan'], 
+
+                $directory = 'surat_pengajuan/' . date('Y/m/d');
+
+                // Buat folder tujuan jika belum ada
+                Storage::disk('local')->makeDirectory($directory);
+
+                $suratPath = $directory . '/' . uniqid() . '_' . $originalFileName;
+
+                Storage::disk('local')->move(
+                    $pendaftaran['surat_pengajuan'],
                     $suratPath
                 );
             }
@@ -290,31 +302,45 @@ class PendaftaranController extends Controller
             $id_pendaftaran = $dbPendaftaran->id_pendaftaran;
 
             // ambil tanggal mulai & selesai dari session
-            $tglMulai   = $pendaftaran['tgl_mulai'];
-            $tglSelesai = $pendaftaran['tgl_selesai'];
+            $tglMulaiDefault   = $pendaftaran['tgl_mulai'];
+            $tglSelesaiDefault = $pendaftaran['tgl_selesai'];
 
+            $uploadedFotoSiswa = [];
             foreach ($request->siswa as $index => $data) {
+
                 $fotoPath = null;
 
-                // ⭐ BARU: Priority 1 - Ambil dari AJAX temp (jika ada)
+                // Ambil dari temp AJAX
                 if (!empty($pendaftaran['siswa'][$index]['foto_temp']) && 
-                    Storage::disk('public')->exists($pendaftaran['siswa'][$index]['foto_temp'])) {
-                    
-                    // Pindahkan dari temp ke folder permanen
+                    Storage::disk('local')->exists($pendaftaran['siswa'][$index]['foto_temp'])) {
+
                     $originalFileName = pathinfo($pendaftaran['siswa'][$index]['foto_temp'], PATHINFO_BASENAME);
-                    $fotoPath = 'foto_siswa/' . date('Y/m/d') . '/' . uniqid() . '_' . $originalFileName;
-                    
-                    Storage::disk('public')->move(
-                        $pendaftaran['siswa'][$index]['foto_temp'], // dari temp
-                        $fotoPath                          // ke permanen
+                    $directory = 'foto_siswa/' . date('Y/m/d');
+
+                    Storage::disk('local')->makeDirectory($directory);
+
+                    $fotoPath = $directory . '/' . uniqid() . '_' . $originalFileName;
+
+                    Storage::disk('local')->move(
+                        $pendaftaran['siswa'][$index]['foto_temp'],
+                        $fotoPath
                     );
-                    
-                } 
-                // ⭐ BARU: Priority 2 - Fallback ke upload form langsung
-                elseif ($request->hasFile("siswa.{$index}.foto")) {
-                    $fotoFile = $request->file("siswa.{$index}.foto");
-                    $fotoPath = $fotoFile->store('foto_siswa/' . date('Y/m/d'), 'public');
                 }
+
+                // Upload langsung tanpa temp
+                elseif ($request->hasFile("siswa.{$index}.foto")) {
+                    $fotoPath = $request->file("siswa.{$index}.foto")
+                        ->store('foto_siswa/' . date('Y/m/d'), 'local');
+                }
+
+                // Simpan path untuk rollback jika error
+                if ($fotoPath) {
+                    $uploadedFotoSiswa[] = $fotoPath;
+                }
+
+                // cek apakah siswa punya tanggal khusus
+                $tglMulaiSiswa   = $data['tgl_mulai']   ?? $tglMulaiDefault;
+                $tglSelesaiSiswa = $data['tgl_selesai'] ?? $tglSelesaiDefault;
 
                 Siswa::create([
                     'nisn'              => $data['nisn'],
@@ -327,8 +353,8 @@ class PendaftaranController extends Controller
                     'alamat_rumah'      => $data['alamat_rumah'] ?? '',
                     'no_hp'             => $data['no_hp'] ?? '',
                     'alamat_kos'        => '',
-                    'tgl_mulai'         => $tglMulai,
-                    'tgl_selesai'       => $tglSelesai,
+                    'tgl_mulai'         => $tglMulaiSiswa,
+                    'tgl_selesai'       => $tglSelesaiSiswa,
                     'foto'              => $fotoPath,
                     'status_siswa'      => 'diproses',
                     'id_pembimbing_i'   => null,
@@ -346,23 +372,26 @@ class PendaftaranController extends Controller
             return redirect()->route('pendaftaran.selesai');
 
         } catch (\Exception $e) {
-            
-            // Hapus file yang sudah terupload jika ada error
-            if (isset($suratPath) && Storage::disk('public')->exists($suratPath)) {
-                Storage::disk('public')->delete($suratPath);
+
+             // Hapus surat pengajuan
+            if (!empty($suratPath) && Storage::disk('local')->exists($suratPath)) {
+                Storage::disk('local')->delete($suratPath);
             }
-            
-            // Hapus foto siswa yang sudah terupload jika ada error
-            if (isset($fotoPath) && Storage::disk('public')->exists($fotoPath)) {
-                Storage::disk('public')->delete($fotoPath);
+
+            // Hapus semua foto siswa yang berhasil pindah
+            foreach ($uploadedFotoSiswa as $path) {
+                if (Storage::disk('local')->exists($path)) {
+                    Storage::disk('local')->delete($path);
+                }
             }
-            
+
             DB::rollBack();
+
             return redirect()->back()
-            ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
-            ->withInput();
-            
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
         }
+
     }
 
     // Step 4: Selesai
@@ -377,23 +406,24 @@ class PendaftaranController extends Controller
     public function cancel()
     {
         $pendaftaran = session('pendaftaran', []);
-        
-        // Hapus file temporary surat pengajuan jika ada (dari public disk)
-        if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('public')->exists($pendaftaran['surat_pengajuan'])) {
-            Storage::disk('public')->delete($pendaftaran['surat_pengajuan']);
+
+        // Hapus temp surat
+        if (!empty($pendaftaran['surat_pengajuan']) && Storage::disk('local')->exists($pendaftaran['surat_pengajuan'])) {
+            Storage::disk('local')->delete($pendaftaran['surat_pengajuan']);
         }
-        
-        // Hapus foto siswa jika sudah diupload (di step terakhir)
-        if (isset($pendaftaran['siswa'])) {
-            foreach ($pendaftaran['siswa'] as $data) {
-                if (isset($data['foto']) && is_string($data['foto'])) {
-                    Storage::disk('public')->delete($data['foto']);
+
+        // Hapus foto temp siswa
+        if (!empty($pendaftaran['siswa'])) {
+            foreach ($pendaftaran['siswa'] as $siswa) {
+                if (!empty($siswa['foto_temp']) && Storage::disk('local')->exists($siswa['foto_temp'])) {
+                    Storage::disk('local')->delete($siswa['foto_temp']);
                 }
             }
         }
 
-        session()->forget('pendaftaran_in_progress');
-        session()->forget('pendaftaran');
+        session()->forget(['pendaftaran_in_progress', 'pendaftaran']);
+
         return redirect()->route('home')->with('info', 'Pendaftaran dibatalkan.');
     }
+
 }
