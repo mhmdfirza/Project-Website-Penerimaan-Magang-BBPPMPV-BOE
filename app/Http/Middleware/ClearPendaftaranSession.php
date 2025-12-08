@@ -41,12 +41,12 @@ class ClearPendaftaranSession
             session()->has('pendaftaran_in_progress') &&
             !in_array($routeName, $allowedRoutes)
         ) {
-            // Hapus file surat
+            // Hapus surat
             if (!empty($pendaftaran['surat_pengajuan'])) {
                 Storage::disk('local')->delete($pendaftaran['surat_pengajuan']);
             }
 
-            // Hapus foto siswa temp
+            // Hapus foto siswa
             if (!empty($pendaftaran['siswa'])) {
                 foreach ($pendaftaran['siswa'] as $data) {
                     if (!empty($data['foto_temp'])) {
@@ -54,6 +54,7 @@ class ClearPendaftaranSession
                     }
                 }
             }
+
 
             // Reset session
             session()->forget('pendaftaran_in_progress');
