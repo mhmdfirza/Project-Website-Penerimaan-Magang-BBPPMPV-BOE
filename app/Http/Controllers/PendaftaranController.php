@@ -49,7 +49,7 @@ class PendaftaranController extends Controller
             $pendaftaran = session('pendaftaran', []);
 
             // Simpan file sementara ke storage/app/private/temp
-            $tempSuratPath = $request->file('surat_pengajuan')->store('temp/surat_pengajuan/');
+            $tempSuratPath = $request->file('surat_pengajuan')->store('temp/surat_pengajuan');
             $pendaftaran['surat_pengajuan'] = $tempSuratPath;
             
             // Update session
@@ -90,7 +90,7 @@ class PendaftaranController extends Controller
             }
 
             // Simpan file sementara ke storage/app/private/temp/foto_siswa
-            $tempFotoPath = $request->file('foto_siswa')->store('temp/foto_siswa/');
+            $tempFotoPath = $request->file('foto_siswa')->store('temp/foto_siswa');
             
             // Simpan di session dengan struktur array berdasarkan index
             if (!isset($pendaftaran['siswa'])) {
